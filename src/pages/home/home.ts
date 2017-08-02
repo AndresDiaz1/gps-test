@@ -1,5 +1,5 @@
 import {Component, ElementRef, ViewChild} from '@angular/core';
-import { NavController } from 'ionic-angular';
+import {LoadingController, NavController} from 'ionic-angular';
 
 declare var google;
 
@@ -11,9 +11,9 @@ export class HomePage {
 
   @ViewChild('map') mapElement: ElementRef;
   map: any;
+  loading:any;
 
-  constructor(public navCtrl: NavController) {
-
+  constructor(public navCtrl: NavController, public loadingCtrl: LoadingController) {
   }
 
   ionViewDidLoad(){
@@ -30,14 +30,7 @@ export class HomePage {
     }
 
     this.map = new google.maps.Map(this.mapElement.nativeElement, mapOptions);
-
-   this.AccurateCurrentPosition((e)=>{
-     console.log("Pudo con", e);
-   },(e)=>{
-     console.log("no pudo con", e)
-   },(e)=>{
-     console.log("esta pensando con", e)
-   },{desiredAccuracy:20, maxWait:15000}, this.map)
+    this.addMarker();
 
   }
 
@@ -95,16 +88,21 @@ export class HomePage {
   }
 
   addMarker(){
-    //console.log(this.map.getCenter())
-    let marker = new google.maps.Marker({
-      map: this.map,
-      animation: google.maps.Animation.DROP,
-      position: this.map.getCenter()
+    this.loading = this.loadingCtrl.create({
+      content: 'Please wait...'
     });
 
-    let content = "<h4>Information!</h4>";
+    this.loading.present();
+    this.AccurateCurrentPosition((e)=>{
+      console.log("Pudo con", e);
+      this.loading.dismiss();
+    },(e)=>{
+      console.log("no pudo con", e)
+    },(e)=>{
+      console.log("esta pensando con", e)
+    },{desiredAccuracy:20, maxWait:15000}, this.map)
 
-    this.addInfoWindow(marker, content);
+
 
   }
 
