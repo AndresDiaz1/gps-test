@@ -1,5 +1,6 @@
 import {Component, ElementRef, ViewChild} from '@angular/core';
 import {LoadingController, NavController} from 'ionic-angular';
+import {FormBuilder, FormGroup} from "@angular/forms";
 
 declare var google;
 
@@ -12,12 +13,22 @@ export class HomePage {
   @ViewChild('map') mapElement: ElementRef;
   map: any;
   loading:any;
+  form: FormGroup;
+  markers = [];
 
-  constructor(public navCtrl: NavController, public loadingCtrl: LoadingController) {
+  constructor(public navCtrl: NavController, public loadingCtrl: LoadingController,  private  formBuilder: FormBuilder) {
+    this.createForm(formBuilder);
   }
 
   ionViewDidLoad(){
     this.loadMap();
+  }
+
+  private createForm(formBuilder: FormBuilder) {
+    this.form = formBuilder.group({
+      error: ['20'],
+      time: ['15000'],
+    });
   }
 
   loadMap(){
@@ -34,7 +45,7 @@ export class HomePage {
 
   }
 
-  AccurateCurrentPosition(geolocationSuccess, geolocationError, geoprogress, options, map){
+  AccurateCurrentPosition(geolocationSuccess, geolocationError, geoprogress, options, map, markers){
     var lastCheckedPosition,
       locationEventCount = 0,
       watchID,
@@ -69,11 +80,14 @@ export class HomePage {
 
     var foundPosition = function (position) {
       geolocationSuccess(position);
+      console.log("como lo hace", map.getCenter());
+      console.log("lo que devuleve position", position)
       let marker = new google.maps.Marker({
         map: map,
         animation: google.maps.Animation.DROP,
-        position: map.getCenter()
+        position: new google.maps.LatLng(position.coords.latitude,position.coords.longitude)
       });
+      markers.push(marker);
     };
 
     if (!options.maxWait)            options.maxWait = 10000; // Default 10 seconds
@@ -97,10 +111,10 @@ export class HomePage {
       console.log("Pudo con", e);
       this.loading.dismiss();
     },(e)=>{
-      console.log("no pudo con", e)
+     alert("No pudo");
     },(e)=>{
       console.log("esta pensando con", e)
-    },{desiredAccuracy:20, maxWait:15000}, this.map)
+    },{desiredAccuracy:this.form.controls['error'].value, maxWait:this.form.controls['time'].value}, this.map, this.markers)
 
 
 
@@ -116,6 +130,21 @@ export class HomePage {
       infoWindow.open(this.map, marker);
     });
 
+  }
+
+  deleteMarkers() {
+    this.clearMarkers();
+    this.markers = [];
+  }
+
+  clearMarkers() {
+    this.setMapOnAll(null);
+  }
+
+  setMapOnAll(map) {
+    for (let i = 0; i < this.markers.length; i++) {
+      this.markers[i].setMap(map);
+    }
   }
 
 }

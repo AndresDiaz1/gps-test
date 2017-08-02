@@ -4,11 +4,23 @@
       Map
     </ion-title>
     <ion-buttons end>
-      <button ion-button (click)="addMarker()"><ion-icon name="add"></ion-icon>Add Marker</button>
+      <button ion-button (click)="addMarker()"><ion-icon name="add"></ion-icon>Calcular posición</button>
+      <button ion-button (click)="deleteMarkers()">Borrar pines</button>
     </ion-buttons>
   </ion-navbar>
 </ion-header>
 
 <ion-content>
+  <form [formGroup]="form" novalidate>
+    <ion-item>
+      <ion-label color="primary" fixed>Error en metros</ion-label>
+      <ion-input formControlName="error" type="number" placeholder="error m." ></ion-input>
+    </ion-item>
+
+    <ion-item>
+      <ion-label color="primary" fixed>tiempo de espera en ms</ion-label>
+      <ion-input formControlName="time" type="number" placeholder="tiempo espera ms."></ion-input>
+    </ion-item>
+  </form>
   <div #map id="map" style="width: 100%; height: 100%;"></div>
 </ion-content>
